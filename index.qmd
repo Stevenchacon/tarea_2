@@ -1,0 +1,118 @@
+---
+title: "tarea 2 steven chacon"
+format: 
+  html: 
+    toc: true
+    toc_float: true
+---
+
+```{r}
+#| label: carga_de_paquetes
+#| warning: FALSE
+#| message: false
+library(ggplot2)
+library(plotly)
+library(DT)
+library(ggthemes)
+library(readr)
+library(dplyr)
+```
+
+# introducción
+
+En el presente documento se plasmaran diferentes graficos, basados en un archivo csv que contiene 206 muestras de cafe de todo el mundo [link de referencia](https://github.com/fatih-boyar/coffee-quality-data-CQI), este archivo tiene diferentes variables que nos permitira comparar el cafe de los distintos lugares del mundo.
+
+Entre las variables que nos permite ver cuales son las caracteristicas ideales para cosechar el mejor cafe se encuentran, la altitud, la region, el color entre otros
+
+#carga de datos del cafe via web
+
+```{r}
+cafe <-
+  read.csv(file = "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2023-i/main/datos/cqi/coffee-quality.csv")
+```
+
+# Tabla interactiva
+
+```{r}
+datatable(cafe[, c("Country_of_Origin",
+                   "Variety",
+                   "Color", 
+                   "Altitude", 
+                   "Total_Cup_Points")])
+```
+
+# histograma
+
+```{r}
+#| label: histograma-cafe
+#| warning: false
+#| message: false
+  histograma_cafe <-
+  cafe |>
+  ggplot(aes(x = Total_Cup_Points,)) +
+  geom_histogram(
+    aes(text = paste0(
+      "Punteje del cafe",
+      y = after_stat(count)
+    )
+  ),
+  bins = 10 ) +
+  geom_density() +
+  ggtitle("Puntaje medio del cafe") +
+  xlab("puntaje") +
+  ylab("frecuencia") +
+  theme_get()
+
+
+ggplotly(histograma_cafe, tooltip = "text") |>
+  config(locale = "es")
+
+```
+
+# Grafico de dispercion
+
+```{r}
+#| label: dispercion-cafe
+#| warning: false
+#| message: false
+
+
+dispercion_cafe <- cafe |>
+  ggplot(aes(x = Altitude, y = Total_Cup_Points)) +
+  geom_point(aes(text = paste0(
+      "ID: ", ID, "\n",
+      "Calificación: ", round(Total_Cup_Points, 2), "\n",
+      "Altitud: ", round(Altitude, 2), " metros"
+    ))) +
+  geom_smooth(method = "lm") +
+  ggtitle("Calidad del café según su altura") +
+  xlab("Altitud en metros") +
+  ylab("Puntos obtenidos") +
+  theme_get()
+
+ggplotly(dispercion_cafe, tooltip = "text") |>
+  config(locale = "es")
+
+```
+
+# grafico de caja
+
+```{r}
+#| label: caja-cafe
+#| warning: false
+#| message: false
+
+caja_cafe <-
+  cafe |>
+  ggplot(aes(y = Total_Cup_Points)) +
+  geom_boxplot() +
+  ggtitle("Puntuacion de los diferentes cafes") +
+  ylab("nota de los cafes") +
+  xlab("variable")
+  labs(caption = "fuente = gf0604") +
+  theme_get()
+
+
+ggplotly(caja_cafe) |>
+  config(locale = "es")
+```
